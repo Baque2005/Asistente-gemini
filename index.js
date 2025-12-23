@@ -64,25 +64,27 @@ const LaunchRequestHandler = {
   }
 };
 
-const FallbackIntentHandler = {
-  canHandle(handlerInput) {
-    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-      && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.FallbackIntent';
-  },
-  handle(handlerInput) {
-    return handlerInput.responseBuilder
-      .speak('Lo siento, no entendí tu pregunta. Por favor intenta de nuevo.')
-      .getResponse();
-  }
-};
-
 const SessionEndedRequestHandler = {
   canHandle(handlerInput) {
     return Alexa.getRequestType(handlerInput.requestEnvelope) === 'SessionEndedRequest';
   },
   handle(handlerInput) {
     console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
-    return handlerInput.responseBuilder.getResponse();
+    return handlerInput.responseBuilder.getResponse(); // no se dice nada, sólo fin
+  }
+};
+
+// Manejador para intents no reconocidos o no manejados explícitamente
+const UnhandledIntentHandler = {
+  canHandle() {
+    return true;  // Captura TODO lo que no maneja ningún otro handler
+  },
+  handle(handlerInput) {
+    console.log('Intent no manejado:', Alexa.getIntentName(handlerInput.requestEnvelope));
+    return handlerInput.responseBuilder
+      .speak('Lo siento, no pude entender eso. ¿Puedes intentarlo de nuevo?')
+      .reprompt('Por favor, intenta decirlo de otra forma.')
+      .getResponse();
   }
 };
 
@@ -90,15 +92,13 @@ const skillBuilder = Alexa.SkillBuilders.custom()
   .addRequestHandlers(
     LaunchRequestHandler,
     PreguntarGeminiIntentHandler,
-    FallbackIntentHandler,
-    SessionEndedRequestHandler
+    SessionEndedRequestHandler,
+    UnhandledIntentHandler
   );
-
-const skill = skillBuilder.create();
 
 app.post('/alexa', async (req, res) => {
   try {
-    const responseEnvelope = await skill.invoke(req.body);
+    const responseEnvelope = await skillBuilder.invoke(req.body);
     res.json(responseEnvelope);
   } catch (error) {
     console.error('Error al procesar la petición Alexa:', error);
