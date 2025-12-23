@@ -64,17 +64,40 @@ const LaunchRequestHandler = {
   }
 };
 
-// Aquí se crea la instancia de skill (fíjate el .create() )
-const skill = Alexa.SkillBuilders.custom()
+const FallbackIntentHandler = {
+  canHandle(handlerInput) {
+    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+      && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.FallbackIntent';
+  },
+  handle(handlerInput) {
+    return handlerInput.responseBuilder
+      .speak('Lo siento, no entendí tu pregunta. Por favor intenta de nuevo.')
+      .getResponse();
+  }
+};
+
+const SessionEndedRequestHandler = {
+  canHandle(handlerInput) {
+    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'SessionEndedRequest';
+  },
+  handle(handlerInput) {
+    console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
+    return handlerInput.responseBuilder.getResponse();
+  }
+};
+
+const skillBuilder = Alexa.SkillBuilders.custom()
   .addRequestHandlers(
     LaunchRequestHandler,
-    PreguntarGeminiIntentHandler
-  )
-  .create();
+    PreguntarGeminiIntentHandler,
+    FallbackIntentHandler,
+    SessionEndedRequestHandler
+  );
+
+const skill = skillBuilder.create();
 
 app.post('/alexa', async (req, res) => {
   try {
-    // Aquí se usa skill.invoke, no skillBuilder.invoke
     const responseEnvelope = await skill.invoke(req.body);
     res.json(responseEnvelope);
   } catch (error) {
