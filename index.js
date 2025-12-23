@@ -64,15 +64,18 @@ const LaunchRequestHandler = {
   }
 };
 
-const skillBuilder = Alexa.SkillBuilders.custom()
+// Aquí se crea la instancia de skill (fíjate el .create() )
+const skill = Alexa.SkillBuilders.custom()
   .addRequestHandlers(
     LaunchRequestHandler,
     PreguntarGeminiIntentHandler
-  );
+  )
+  .create();
 
 app.post('/alexa', async (req, res) => {
   try {
-    const responseEnvelope = await skillBuilder.invoke(req.body);
+    // Aquí se usa skill.invoke, no skillBuilder.invoke
+    const responseEnvelope = await skill.invoke(req.body);
     res.json(responseEnvelope);
   } catch (error) {
     console.error('Error al procesar la petición Alexa:', error);
