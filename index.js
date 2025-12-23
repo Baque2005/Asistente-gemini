@@ -70,14 +70,13 @@ const SessionEndedRequestHandler = {
   },
   handle(handlerInput) {
     console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
-    return handlerInput.responseBuilder.getResponse(); // no se dice nada, sólo fin
+    return handlerInput.responseBuilder.getResponse();
   }
 };
 
-// Manejador para intents no reconocidos o no manejados explícitamente
 const UnhandledIntentHandler = {
   canHandle() {
-    return true;  // Captura TODO lo que no maneja ningún otro handler
+    return true;
   },
   handle(handlerInput) {
     console.log('Intent no manejado:', Alexa.getIntentName(handlerInput.requestEnvelope));
@@ -88,17 +87,18 @@ const UnhandledIntentHandler = {
   }
 };
 
-const skillBuilder = Alexa.SkillBuilders.custom()
+const skill = Alexa.SkillBuilders.custom()
   .addRequestHandlers(
     LaunchRequestHandler,
     PreguntarGeminiIntentHandler,
     SessionEndedRequestHandler,
     UnhandledIntentHandler
-  );
+  )
+  .create();
 
 app.post('/alexa', async (req, res) => {
   try {
-    const responseEnvelope = await skillBuilder.invoke(req.body);
+    const responseEnvelope = await skill.invoke(req.body);
     res.json(responseEnvelope);
   } catch (error) {
     console.error('Error al procesar la petición Alexa:', error);
