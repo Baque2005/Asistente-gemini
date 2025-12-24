@@ -71,7 +71,7 @@ const LaunchRequestHandler = {
   },
   handle(handlerInput) {
     return handlerInput.responseBuilder
-      .speak('Hola, pregúntame lo que quieras.')
+      .speak('Hola, Soy tu asistente Gemini. ¿Sobre qué tema quieres preguntar, Steven?')
       .reprompt('¿Sobre qué tema quieres preguntar?')
       .getResponse();
   }
