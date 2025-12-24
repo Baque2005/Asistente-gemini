@@ -55,6 +55,7 @@ const PreguntarGeminiIntentHandler = {
 
     const textoOriginal = handlerInput.requestEnvelope.request.intent.slots.texto.value;
     const textoLimpio = limpiarPregunta(textoOriginal);
+    console.log('Texto enviado a Gemini:', textoLimpio);
     const respuesta = await preguntarGemini(textoLimpio);
 
     return handlerInput.responseBuilder
@@ -112,6 +113,7 @@ const HelloWorldIntentHandler = {
       texto = 'Hola, ¿cómo puedes ayudarme?';
     }
     const textoLimpio = limpiarPregunta(texto);
+    console.log('Texto enviado a Gemini:', textoLimpio);
     const respuesta = await preguntarGemini(textoLimpio);
     return handlerInput.responseBuilder
       .speak(respuesta)

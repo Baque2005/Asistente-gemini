@@ -11,7 +11,7 @@ async function testGemini() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [
-          { parts: [{ text: "Cuéntame un chiste corto" }] }
+          { parts: [{ text: "¿Quién es Albert Einstein?" }] }
         ]
       })
     }
