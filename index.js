@@ -100,8 +100,9 @@ const LaunchRequestHandler = {
     return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
   },
   handle(handlerInput) {
+    modoAsistenteVirtual = true;
     return handlerInput.responseBuilder
-      .speak('Hola Steven, soy tu asistente Gemini. ¿En qué puedo ayudarte hoy?')
+      .speak('Hola Steven, soy tu asistente Gemini y el modo asistente virtual está activado. Puedes preguntarme lo que quieras. Cuando quieras salir, di: Alexa, desactiva el modo asistente virtual.')
       .reprompt('¿Sobre qué tema quieres preguntar?')
       .getResponse();
   }
