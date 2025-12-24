@@ -93,9 +93,17 @@ const HelloWorldIntentHandler = {
     return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
       && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
   },
-  handle(handlerInput) {
+  async handle(handlerInput) {
+    // Intentar obtener el slot 'texto' si existe, si no, usar un texto por defecto
+    let texto = '';
+    try {
+      texto = handlerInput.requestEnvelope.request.intent.slots.texto.value;
+    } catch (e) {
+      texto = 'Hola, ¿cómo puedes ayudarme?';
+    }
+    const respuesta = await preguntarGemini(texto);
     return handlerInput.responseBuilder
-      .speak('¡Hola mundo! Esta es la respuesta de HelloWorldIntent.')
+      .speak(respuesta)
       .getResponse();
   }
 };
