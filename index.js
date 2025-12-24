@@ -53,6 +53,7 @@ const PreguntarGeminiIntentHandler = {
   },
   async handle(handlerInput) {
 
+    console.log('Request completo:', JSON.stringify(handlerInput.requestEnvelope, null, 2));
     const textoOriginal = handlerInput.requestEnvelope.request.intent.slots.texto.value;
     const textoLimpio = limpiarPregunta(textoOriginal);
     console.log('Texto enviado a Gemini:', textoLimpio);
@@ -108,6 +109,7 @@ const HelloWorldIntentHandler = {
     // Intentar obtener el slot 'texto' si existe, si no, usar un texto por defecto
     let texto = '';
     try {
+      console.log('Request completo:', JSON.stringify(handlerInput.requestEnvelope, null, 2));
       texto = handlerInput.requestEnvelope.request.intent.slots.texto.value;
     } catch (e) {
       texto = 'Hola, ¿cómo puedes ayudarme?';
