@@ -42,7 +42,7 @@ async function preguntarGemini(texto) {
     return data.candidates[0].content.parts[0].text;
   } catch (error) {
     console.error('Error en Gemini API:', error);
-    return 'Lo siento, tuve un problema consultando a Gemini. Intenta de nuevo más tarde.';
+    return 'Lo siento, tuve un problema consultando a Gemini. ¿Tienes otra pregunta?';
   }
 }
 
@@ -111,7 +111,7 @@ const LaunchRequestHandler = {
     sessionAttributes.modoAsistenteVirtual = true;
     handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
     return handlerInput.responseBuilder
-      .speak('Hola Steven, soy tu asistente Gemini y el modo asistente virtual está activado. Puedes preguntarme lo que quieras. Cuando quieras salir, di: Alexa, desactiva el modo asistente virtual.')
+      .speak('Hola Steven, soy tu asistente Gemini y el modo asistente virtual está activado.')
       .reprompt('¿Sobre qué tema quieres preguntar?')
       .getResponse();
   }
@@ -123,7 +123,11 @@ const SessionEndedRequestHandler = {
   },
   handle(handlerInput) {
     console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
-    return handlerInput.responseBuilder.getResponse();
+    // Si la sesión termina inesperadamente, invita a seguir preguntando
+    return handlerInput.responseBuilder
+      .speak('¿Tienes otra pregunta?')
+      .reprompt('¿Tienes otra pregunta?')
+      .getResponse();
   }
 };
 
@@ -153,8 +157,8 @@ const UnhandledIntentHandler = {
     }
     // Si no está activo, responde por defecto
     return handlerInput.responseBuilder
-      .speak('Lo siento, no pude entender eso. ¿Puedes intentarlo de nuevo?')
-      .reprompt('Por favor, intenta decirlo de otra forma.')
+      .speak('Lo siento, no pude entender eso. ¿Tienes otra pregunta?')
+      .reprompt('¿Tienes otra pregunta?')
       .getResponse();
   }
 };
