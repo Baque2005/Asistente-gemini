@@ -13,6 +13,7 @@ app.use(bodyParser.json());
 
 async function preguntarGemini(texto) {
   try {
+    const prompt = `Responde de forma breve y clara: ${texto}`;
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -20,7 +21,7 @@ async function preguntarGemini(texto) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [
-            { parts: [{ text: texto }] }
+            { parts: [{ text: prompt }] }
           ]
         })
       }
