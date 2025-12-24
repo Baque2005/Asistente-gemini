@@ -100,34 +100,11 @@ const UnhandledIntentHandler = {
 };
 
 
-const HelloWorldIntentHandler = {
-  canHandle(handlerInput) {
-    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-      && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
-  },
-  async handle(handlerInput) {
-    // Intentar obtener el slot 'texto' si existe, si no, usar un texto por defecto
-    let texto = '';
-    try {
-      console.log('Request completo:', JSON.stringify(handlerInput.requestEnvelope, null, 2));
-      texto = handlerInput.requestEnvelope.request.intent.slots.texto.value;
-    } catch (e) {
-      texto = 'Hola, ¿cómo puedes ayudarme?';
-    }
-    const textoLimpio = limpiarPregunta(texto);
-    console.log('Texto enviado a Gemini:', textoLimpio);
-    const respuesta = await preguntarGemini(textoLimpio);
-    return handlerInput.responseBuilder
-      .speak(respuesta)
-      .getResponse();
-  }
-};
 
 const skill = Alexa.SkillBuilders.custom()
   .addRequestHandlers(
     LaunchRequestHandler,
     PreguntarGeminiIntentHandler,
-    HelloWorldIntentHandler,
     SessionEndedRequestHandler,
     UnhandledIntentHandler
   )
