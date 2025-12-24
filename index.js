@@ -1,3 +1,10 @@
+function limpiarPregunta(texto) {
+  // Elimina frases comunes de invocación
+  return texto
+    .replace(/^(pregúntale|pregunta|dile|di le|di a|dile a|hazle una pregunta) a asistente gemini( que)?/i, '')
+    .trim();
+}
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const Alexa = require('ask-sdk-core');
@@ -45,8 +52,10 @@ const PreguntarGeminiIntentHandler = {
       && Alexa.getIntentName(handlerInput.requestEnvelope) === 'PreguntarGeminiIntent';
   },
   async handle(handlerInput) {
-    const texto = handlerInput.requestEnvelope.request.intent.slots.texto.value;
-    const respuesta = await preguntarGemini(texto);
+
+    const textoOriginal = handlerInput.requestEnvelope.request.intent.slots.texto.value;
+    const textoLimpio = limpiarPregunta(textoOriginal);
+    const respuesta = await preguntarGemini(textoLimpio);
 
     return handlerInput.responseBuilder
       .speak(respuesta)
@@ -102,7 +111,8 @@ const HelloWorldIntentHandler = {
     } catch (e) {
       texto = 'Hola, ¿cómo puedes ayudarme?';
     }
-    const respuesta = await preguntarGemini(texto);
+    const textoLimpio = limpiarPregunta(texto);
+    const respuesta = await preguntarGemini(textoLimpio);
     return handlerInput.responseBuilder
       .speak(respuesta)
       .getResponse();
