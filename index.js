@@ -46,6 +46,35 @@ async function preguntarGemini(texto) {
   }
 }
 
+let modoAsistenteVirtual = false;
+
+const ActivarModoAsistenteVirtualIntentHandler = {
+  canHandle(handlerInput) {
+    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+      && Alexa.getIntentName(handlerInput.requestEnvelope) === 'ActivarModoAsistenteVirtualIntent';
+  },
+  handle(handlerInput) {
+    modoAsistenteVirtual = true;
+    return handlerInput.responseBuilder
+      .speak('Modo asistente virtual activado. Puedes hacerme cualquier pregunta.')
+      .reprompt('¿Sobre qué tema quieres preguntar?')
+      .getResponse();
+  }
+};
+
+const DesactivarModoAsistenteVirtualIntentHandler = {
+  canHandle(handlerInput) {
+    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+      && Alexa.getIntentName(handlerInput.requestEnvelope) === 'DesactivarModoAsistenteVirtualIntent';
+  },
+  handle(handlerInput) {
+    modoAsistenteVirtual = false;
+    return handlerInput.responseBuilder
+      .speak('Modo asistente virtual desactivado. Si necesitas algo más, solo dímelo.')
+      .getResponse();
+  }
+};
+
 const PreguntarGeminiIntentHandler = {
   canHandle(handlerInput) {
     return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -61,6 +90,7 @@ const PreguntarGeminiIntentHandler = {
 
     return handlerInput.responseBuilder
       .speak(respuesta)
+      .reprompt('¿Tienes otra pregunta?')
       .getResponse();
   }
 };
@@ -87,12 +117,29 @@ const SessionEndedRequestHandler = {
   }
 };
 
+
 const UnhandledIntentHandler = {
-  canHandle() {
-    return true;
-  },
-  handle(handlerInput) {
-    console.log('Intent no manejado:', Alexa.getIntentName(handlerInput.requestEnvelope));
+  async handle(handlerInput) {
+    const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
+    console.log('Intent no manejado:', intentName);
+    // Si el modo asistente virtual está activo, responde con Gemini
+    if (modoAsistenteVirtual && handlerInput.requestEnvelope.request.type === 'IntentRequest') {
+      let texto = '';
+      // Intenta obtener el slot 'texto' si existe
+      if (handlerInput.requestEnvelope.request.intent && handlerInput.requestEnvelope.request.intent.slots && handlerInput.requestEnvelope.request.intent.slots.texto && handlerInput.requestEnvelope.request.intent.slots.texto.value) {
+        texto = handlerInput.requestEnvelope.request.intent.slots.texto.value;
+      } else {
+        // Si no hay slot, usa el nombre del intent como texto
+        texto = intentName || 'pregunta';
+      }
+      const textoLimpio = limpiarPregunta(texto);
+      const respuesta = await preguntarGemini(textoLimpio);
+      return handlerInput.responseBuilder
+        .speak(respuesta)
+        .reprompt('¿Tienes otra pregunta?')
+        .getResponse();
+    }
+    // Si no está activo, responde por defecto
     return handlerInput.responseBuilder
       .speak('Lo siento, no pude entender eso. ¿Puedes intentarlo de nuevo?')
       .reprompt('Por favor, intenta decirlo de otra forma.')
@@ -102,9 +149,12 @@ const UnhandledIntentHandler = {
 
 
 
+
 const skill = Alexa.SkillBuilders.custom()
   .addRequestHandlers(
     LaunchRequestHandler,
+    ActivarModoAsistenteVirtualIntentHandler,
+    DesactivarModoAsistenteVirtualIntentHandler,
     PreguntarGeminiIntentHandler,
     SessionEndedRequestHandler,
     UnhandledIntentHandler
