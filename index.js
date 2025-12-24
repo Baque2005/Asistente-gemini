@@ -87,10 +87,24 @@ const UnhandledIntentHandler = {
   }
 };
 
+
+const HelloWorldIntentHandler = {
+  canHandle(handlerInput) {
+    return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+      && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
+  },
+  handle(handlerInput) {
+    return handlerInput.responseBuilder
+      .speak('¡Hola mundo! Esta es la respuesta de HelloWorldIntent.')
+      .getResponse();
+  }
+};
+
 const skill = Alexa.SkillBuilders.custom()
   .addRequestHandlers(
     LaunchRequestHandler,
     PreguntarGeminiIntentHandler,
+    HelloWorldIntentHandler,
     SessionEndedRequestHandler,
     UnhandledIntentHandler
   )
