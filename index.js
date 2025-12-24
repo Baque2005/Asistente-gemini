@@ -46,7 +46,7 @@ async function preguntarGemini(texto) {
   }
 }
 
-let modoAsistenteVirtual = false;
+
 
 const ActivarModoAsistenteVirtualIntentHandler = {
   canHandle(handlerInput) {
@@ -54,7 +54,9 @@ const ActivarModoAsistenteVirtualIntentHandler = {
       && Alexa.getIntentName(handlerInput.requestEnvelope) === 'ActivarModoAsistenteVirtualIntent';
   },
   handle(handlerInput) {
-    modoAsistenteVirtual = true;
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    sessionAttributes.modoAsistenteVirtual = true;
+    handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
     return handlerInput.responseBuilder
       .speak('Modo asistente virtual activado. Puedes hacerme cualquier pregunta.')
       .reprompt('¿Sobre qué tema quieres preguntar?')
@@ -68,7 +70,9 @@ const DesactivarModoAsistenteVirtualIntentHandler = {
       && Alexa.getIntentName(handlerInput.requestEnvelope) === 'DesactivarModoAsistenteVirtualIntent';
   },
   handle(handlerInput) {
-    modoAsistenteVirtual = false;
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    sessionAttributes.modoAsistenteVirtual = false;
+    handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
     return handlerInput.responseBuilder
       .speak('Modo asistente virtual desactivado. Si necesitas algo más, solo dímelo.')
       .getResponse();
@@ -81,6 +85,9 @@ const PreguntarGeminiIntentHandler = {
       && Alexa.getIntentName(handlerInput.requestEnvelope) === 'PreguntarGeminiIntent';
   },
   async handle(handlerInput) {
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    sessionAttributes.modoAsistenteVirtual = true; // Si pregunta, se mantiene activo
+    handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
     console.log('Request completo:', JSON.stringify(handlerInput.requestEnvelope, null, 2));
     const textoOriginal = handlerInput.requestEnvelope.request.intent.slots.texto.value;
@@ -100,7 +107,9 @@ const LaunchRequestHandler = {
     return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
   },
   handle(handlerInput) {
-    modoAsistenteVirtual = true;
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    sessionAttributes.modoAsistenteVirtual = true;
+    handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
     return handlerInput.responseBuilder
       .speak('Hola Steven, soy tu asistente Gemini y el modo asistente virtual está activado. Puedes preguntarme lo que quieras. Cuando quieras salir, di: Alexa, desactiva el modo asistente virtual.')
       .reprompt('¿Sobre qué tema quieres preguntar?')
@@ -121,6 +130,8 @@ const SessionEndedRequestHandler = {
 
 const UnhandledIntentHandler = {
   async handle(handlerInput) {
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const modoAsistenteVirtual = sessionAttributes.modoAsistenteVirtual;
     const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
     console.log('Intent no manejado:', intentName);
     // Si el modo asistente virtual está activo, responde con Gemini
