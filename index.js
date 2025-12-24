@@ -72,6 +72,7 @@ const LaunchRequestHandler = {
   handle(handlerInput) {
     return handlerInput.responseBuilder
       .speak('Hola, pregúntame lo que quieras.')
+      .reprompt('¿Sobre qué tema quieres preguntar?')
       .getResponse();
   }
 };
